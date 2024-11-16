@@ -1,0 +1,33 @@
+simple node_PP5
+{
+    parameters:
+        double power = default(2.0);
+        bool sendMsgOnInit = default(false); //TASLIM ALAM C213246
+        int source = default(0);
+        int destination = default(5);
+    gates:
+        inout gate[];
+}
+network lab5
+{ types:
+        channel Channel extends ned.DelayChannel
+        {
+            delay = 100ms;
+        }
+    submodules:
+        router_PP[11]: node_PP5 {
+            @display("i=abstract/router");
+        }
+    connections:
+        router_PP[0].gate++ <--> Channel <--> router_PP[1].gate++;
+        router_PP[1].gate++ <--> Channel <--> router_PP[2].gate++;
+        router_PP[2].gate++ <--> Channel <--> router_PP[3].gate++; 
+        router_PP[3].gate++ <--> Channel <--> router_PP[6].gate++;
+        router_PP[3].gate++ <--> Channel <--> router_PP[4].gate++;
+        router_PP[4].gate++ <--> Channel <--> router_PP[5].gate++;
+        router_PP[5].gate++ <--> Channel <--> router_PP[6].gate++;
+        router_PP[6].gate++ <--> Channel <--> router_PP[7].gate++;
+        router_PP[7].gate++ <--> Channel <--> router_PP[8].gate++;
+        router_PP[8].gate++ <--> Channel <--> router_PP[9].gate++;
+        router_PP[9].gate++ <--> Channel <--> router_PP[10].gate++;
+}
