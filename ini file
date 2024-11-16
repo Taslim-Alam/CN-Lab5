@@ -1,0 +1,7 @@
+[Config Lab5_1]
+network= lab5
+record-eventlog=true
+.router_PP[].power=5.0
+.router_PP[].source = 1
+.router_PP[].destination = 9
+.router_PP[].sendMsgOnInit = true
