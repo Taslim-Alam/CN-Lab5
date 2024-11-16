@@ -1,0 +1,79 @@
+/*
+ * node_ProtocolPros.cc
+    Created by : TASLIM ALAM
+ *  Created on: OCT 10 2024
+ * Team Name : Protocol Pros
+ */
+#include <omnetpp.h>
+#include "packet_PP_m.h"
+using namespace omnetpp;
+class node_PP5 : public cSimpleModule
+{
+  private:
+    double counter;
+    bool sendMsgOnInit;
+
+  protected:
+    virtual void initialize() override;
+    virtual void handleMessage(cMessage *msg) override;
+    virtual void forwardMessage(packetPP *msg);
+    virtual packetPP *generateMessage();
+};
+Define_Module(node_PP5);
+
+void node_PP5::initialize()
+{
+    counter=par("power");
+    int src=par("source");
+    int dst=par("destination");
+    if (getIndex() == src && par("sendMsgOnInit").boolValue() == true) {
+
+        packetPP *msg=generateMessage();
+        scheduleAt(0.0,msg);
+    }
+
+}
+void node_PP5::handleMessage(cMessage *msg)
+{
+    packetPP *ttmsg = check_and_cast<packetPP *>(msg);
+    int dst=par("destination");
+       if (counter == 0) {
+           EV << getName() << "'s counter reached zero, deleting message\n";
+           delete ttmsg;
+       }
+       else if(getIndex()==ttmsg->getDestination()){
+           EV << "Message " << ttmsg << " arrived after " << ttmsg->getHopCount() << " hops.\n";
+                  bubble("ARRIVED");
+           delete ttmsg;
+       }
+       else{
+           forwardMessage(ttmsg);
+       }
+
+       }
+void node_PP5::forwardMessage(packetPP *msg){
+    counter = counter - 0.1;
+    msg->setHopCount(msg->getHopCount()+1);
+    int n= gateSize("gate");
+    int k=intuniform(0,n-1);
+
+    EV<<"Forwarding message "<<msg<<"on gate["<<k<<"]\n";
+    send(msg,"gate$o",k);
+
+}
+packetPP*node_PP5::generateMessage()
+{
+    // Produce source and destination addresses.
+    int src = par("source");
+    int dst = par("destination");  // our module index
+
+
+    char msgname[20];
+    sprintf(msgname, "packetPP-%d-to-%d", src, dst);
+
+    // Create message object and set source and destination field.
+    packetPP *msg = new packetPP(msgname);
+    msg->setSource(src);
+    msg->setDestination(dst);
+    return msg;
+}
